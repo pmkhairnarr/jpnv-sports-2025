@@ -24,29 +24,44 @@ class JPNVCSVLoader {
     }
 
     /**
-     * 🔄 Load all CSV data
+     * 🔄 Load CSV data (optimized for performance)
      */
     async loadAllData() {
         try {
-            this.showLoadingState();
+            // Load only essential data first (matches)
+            console.log('🚀 Loading essential data...');
             
-            const promises = Object.entries(this.csvFiles).map(async ([key, filename]) => {
-                const data = await this.loadCSV(key, filename);
-                this.data[key] = data;
-                return { key, data };
-            });
-
-            await Promise.all(promises);
-            this.lastUpdated = new Date();
-            this.hideLoadingState();
-            this.updateUI();
-            this.showSuccessMessage(`✅ Data loaded successfully! ${this.getTotalRecords()} records from ${Object.keys(this.csvFiles).length} files`);
+            const matchData = await this.loadCSV('matches', this.csvFiles.matches);
+            this.data.matches = matchData;
+            
+            // Update UI immediately with matches
+            if (window.renderMatches) {
+                window.renderMatches(this.data.matches);
+            }
+            
+            // Load other data in background
+            setTimeout(async () => {
+                try {
+                    const [teams, venues, results] = await Promise.all([
+                        this.loadCSV('teams', this.csvFiles.teams),
+                        this.loadCSV('venues', this.csvFiles.venues),
+                        this.loadCSV('results', this.csvFiles.results)
+                    ]);
+                    
+                    this.data.teams = teams;
+                    this.data.venues = venues;
+                    this.data.results = results;
+                    this.lastUpdated = new Date();
+                    
+                    console.log('✅ All data loaded successfully!');
+                } catch (error) {
+                    console.log('⚠️ Using fallback data for some sections');
+                }
+            }, 1000);
             
             return this.data;
         } catch (error) {
             console.error('❌ Failed to load CSV data:', error);
-            this.hideLoadingState();
-            this.showErrorMessage('Failed to load data. Using cached version.');
             this.loadFallbackData();
         }
     }

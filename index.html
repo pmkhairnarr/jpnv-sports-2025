@@ -39,14 +39,7 @@
     <meta name="msapplication-TileColor" content="#2563eb">
     <meta name="msapplication-config" content="browserconfig.xml">
     
-    <!-- Preconnect for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- DNS Prefetch -->
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <!-- Fast system fonts for better performance -->
     
     <style>
         :root {
@@ -76,7 +69,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
             line-height: 1.6;
             color: var(--text-primary);
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -119,13 +112,6 @@
 
         .logo-icon {
             font-size: 2rem;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
         }
 
         .nav-menu {
@@ -607,28 +593,11 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
-        /* Skeleton loading states */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-        
-        .skeleton-match {
-            height: 120px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-        }
-        
-        .skeleton-team {
-            height: 80px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-        
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+        /* Simple loading state */
+        .loading-simple {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
         }
 
         /* Improved accessibility */
@@ -817,9 +786,6 @@
         </div>
     </main>
 
-    <!-- CSV Dynamic Loader -->
-    <script src="js/csv-loader.js"></script>
-    
     <script>
         // JPNV Sports Data - Expanded 6-Sport Championship (Fallback Data)
         const jpnvData = {
@@ -1171,10 +1137,15 @@
                 });
             });
             
-            // Initial render with delay to allow CSV loader to initialize
+            // 🚀 Immediate render with static data for fast loading
+            renderMatches(); // Show static data immediately
+            
+            // Then try to load CSV data in background
             setTimeout(() => {
-                renderMatchesEnhanced();
-            }, 100);
+                if (window.getJPNVData) {
+                    renderMatchesEnhanced();
+                }
+            }, 500);
         });
 
         // PWA Features
@@ -1432,27 +1403,9 @@
             return null;
         }
 
-        // Enhanced match rendering with caching
+        // Simple match rendering for better performance
         function renderMatchesWithCache() {
-            const matchesGrid = document.getElementById('matches-grid');
-            
-            // Try to load cached data first
-            const cachedMatches = getCachedData('matches');
-            if (cachedMatches) {
-                renderMatches(cachedMatches);
-                console.log('JPNV Sports: Loaded matches from cache');
-            } else {
-                // Show skeleton loading
-                matchesGrid.innerHTML = Array.from({length: 6}, () => 
-                    '<div class="skeleton skeleton-match"></div>'
-                ).join('');
-                
-                // Simulate API loading then render actual data
-                setTimeout(() => {
-                    renderMatches();
-                    cacheData('matches', jpnvMatchSchedule);
-                }, 800);
-            }
+            renderMatches();
         }
 
         // Enhanced search and filtering
@@ -1549,25 +1502,16 @@
             nav.after(statsContainer);
         }
 
-        // Initialize all features
+        // Lightweight initialization for better performance
         document.addEventListener('DOMContentLoaded', function() {
+            // Only initialize essential features
             initMobileFeatures();
             initNetworkMonitoring();
-            trackPerformance();
-            enhancedSearch();
-            addQuickStats();
             
-            // Enhanced loading with cache
-            renderMatchesWithCache();
+            // Simple rendering
+            renderMatches();
             
-            // Cache other data
-            setTimeout(() => {
-                cacheData('teams', jpnvTeamsInformation);
-                cacheData('venues', jpnvVenuesList);
-                cacheData('results', jpnvMatchResults);
-            }, 1000);
-            
-            console.log('✅ JPNV Sports Mobile App initialized successfully');
+            console.log('✅ JPNV Sports loaded successfully');
         });
 
         // Add CSS animations
@@ -1585,6 +1529,12 @@
         const style = document.createElement('style');
         style.textContent = animationCSS;
         document.head.appendChild(style);
+
+        // 🚀 Load lightweight CSV system for better performance
+        const csvScript = document.createElement('script');
+        csvScript.src = 'js/csv-loader-lite.js';
+        csvScript.async = true;
+        document.head.appendChild(csvScript);
     </script>
 </body>
 </html>
