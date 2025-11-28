@@ -30,8 +30,8 @@
         .stat-number{font-size:2rem;font-weight:700;color:#f59e0b}
         .loading{text-align:center;padding:40px;color:#fff}
     </style>
-    <link rel="preload" href="fast.css?v=1129" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="fast.css?v=1129"></noscript>
+    <link rel="preload" href="fast.css?v=1131" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="fast.css?v=1131"></noscript>
 </head>
 <body>
     <header class="header">
@@ -58,19 +58,19 @@
                 <p style="font-size: clamp(1rem, 3vw, 1.5rem); margin-bottom: 24px;">Complete Multi-Sport Championship</p>
                 <div class="hero-stats">
                     <div class="stat-card">
-                        <div class="stat-number">24</div>
+                        <div class="stat-number">⏳</div>
                         <div class="stat-label">Matches</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">40</div>
+                        <div class="stat-number">⏳</div>
                         <div class="stat-label">Teams</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">6</div>
+                        <div class="stat-number">⏳</div>
                         <div class="stat-label">Sports</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">10</div>
+                        <div class="stat-number">⏳</div>
                         <div class="stat-label">Venues</div>
                     </div>
                 </div>
@@ -137,6 +137,7 @@
             if (document.querySelector('#teams-section').style.display !== 'none') {
                 renderTeams();
             }
+            updateStats(); // Update stats when teams load
         };
 
         window.updateVenuesData = function(csvVenues) {
@@ -145,29 +146,37 @@
             if (document.querySelector('#venues-section').style.display !== 'none') {
                 renderVenues();
             }
+            updateStats(); // Update stats when venues load
         };
 
         // Update hero stats with actual data
         function updateStats() {
-            const uniqueSports = new Set(matches.map(m => m.sport)).size;
+            const uniqueSports = matches.length > 0 ? new Set(matches.map(m => m.sport)).size : 0;
+            const matchCount = matches.length || (matches.length === 0 ? '⏳' : 0);
+            const teamCount = teams.length || (teams.length === 0 ? '⏳' : 0);
+            const venueCount = venues.length || (venues.length === 0 ? '⏳' : 0);
+            const sportCount = uniqueSports || (matches.length === 0 ? '⏳' : 0);
+            
             document.querySelector('.hero-stats').innerHTML = `
                 <div class="stat-card">
-                    <div class="stat-number">${matches.length}</div>
+                    <div class="stat-number">${matchCount}</div>
                     <div class="stat-label">Matches</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">${teams.length}</div>
+                    <div class="stat-number">${teamCount}</div>
                     <div class="stat-label">Teams</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">${uniqueSports || 6}</div>
+                    <div class="stat-number">${sportCount}</div>
                     <div class="stat-label">Sports</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">${venues.length}</div>
+                    <div class="stat-number">${venueCount}</div>
                     <div class="stat-label">Venues</div>
                 </div>
             `;
+            
+            console.log('Stats updated:', { matches: matchCount, teams: teamCount, sports: sportCount, venues: venueCount });
         }
 
         function formatDate(dateString) {
@@ -343,7 +352,7 @@
         // Load mini CSV in background  
         setTimeout(() => {
             const s = document.createElement('script');
-            s.src = 'js/mini-csv.js?v=1130';
+            s.src = 'js/mini-csv.js?v=1131';
             s.async = true;
             document.head.appendChild(s);
         }, 300);
