@@ -22,6 +22,7 @@
         .nav-btn:hover,.nav-btn.active{background:#2563eb;color:white}
         .refresh-btn{padding:8px 12px!important;font-size:16px!important;transition:transform 0.3s ease}
         .refresh-btn:hover{transform:rotate(90deg)}
+        @media (max-width:768px){.header-content{flex-wrap:wrap;gap:8px}.logo{flex:1;min-width:0}.nav-menu{gap:6px;flex-wrap:wrap;width:100%;justify-content:space-between}.nav-btn{padding:10px 12px;font-size:13px;min-width:70px;min-height:44px;touch-action:manipulation}.refresh-btn{padding:10px 12px!important;font-size:16px!important;min-width:50px!important}}
         .hero-section{text-align:center;padding:40px 0;color:white;margin-bottom:32px}
         .hero-title{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;margin-bottom:16px}
         .hero-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:16px;max-width:600px;margin:0 auto}
@@ -29,16 +30,16 @@
         .stat-number{font-size:2rem;font-weight:700;color:#f59e0b}
         .loading{text-align:center;padding:40px;color:#fff}
     </style>
-    <link rel="preload" href="fast.css?v=1128" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="fast.css?v=1128"></noscript>
+    <link rel="preload" href="fast.css?v=1129" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="fast.css?v=1129"></noscript>
 </head>
 <body>
     <header class="header">
         <div class="container">
             <div class="header-content">
                 <a href="#" class="logo">
-                    <span style="font-size: 2rem;">🏏</span>
-                    <span>JPNV Sports</span>
+                    <span style="font-size: clamp(1.5rem, 4vw, 2rem);">🏏</span>
+                    <span style="font-size: clamp(1rem, 3vw, 1.5rem);">JPNV Sports</span>
                 </a>
                 <nav class="nav-menu">
                     <button class="nav-btn active" data-section="matches">Matches</button>
@@ -287,7 +288,7 @@
                 .teams-grid{padding:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
                 .team-card{background:white;border:1px solid #e5e7eb;border-radius:8px;padding:20px;text-align:center}
                 .team-card-logo{width:60px;height:60px;background:linear-gradient(135deg,#2563eb,#1e40af);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1.5rem;margin:0 auto 16px}
-                @media (max-width:768px){.container{padding:0 12px}.hero-section{padding:24px 0}.matches-grid,.teams-grid{padding:16px}.match-details{grid-template-columns:1fr}.teams-grid{grid-template-columns:1fr}.match-teams{flex-direction:column;gap:12px}.vs-divider{margin:8px 0}}
+                @media (max-width:768px){.container{padding:0 12px}.hero-section{padding:24px 0}.matches-grid,.teams-grid{padding:16px}.match-details{grid-template-columns:1fr}.teams-grid{grid-template-columns:1fr}.match-teams{flex-direction:column;gap:12px}.vs-divider{margin:8px 0}.header-content{padding:8px 0!important}.nav-menu{justify-content:center;width:100%;margin-top:8px}.nav-btn{flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
             `;
             document.head.appendChild(style);
         }, 50);
@@ -295,7 +296,7 @@
         // Load mini CSV in background  
         setTimeout(() => {
             const s = document.createElement('script');
-            s.src = 'js/mini-csv.js?v=1128';
+            s.src = 'js/mini-csv.js?v=1129';
             s.async = true;
             document.head.appendChild(s);
         }, 300);
