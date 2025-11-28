@@ -30,8 +30,8 @@
         .stat-number{font-size:2rem;font-weight:700;color:#f59e0b}
         .loading{text-align:center;padding:40px;color:#fff}
     </style>
-    <link rel="preload" href="fast.css?v=1130" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="fast.css?v=1130"></noscript>
+    <link rel="preload" href="fast.css?v=1129" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="fast.css?v=1129"></noscript>
 </head>
 <body>
     <header class="header">
@@ -118,20 +118,57 @@
     </main>
 
     <script>
-        // Essential data only
-        const matches = [
-            {date: '2025-12-01', time: '09:00', sport: 'Cricket', competition: 'JPNV Premier League', homeTeam: 'Mumbai Warriors', awayTeam: 'Delhi Dynamos', venue: 'JPNV Cricket Ground A', status: 'Scheduled'},
-            {date: '2025-12-01', time: '14:00', sport: 'Cricket', competition: 'JPNV Premier League', homeTeam: 'Kolkata Knights', awayTeam: 'Jaipur Jaguars', venue: 'JPNV Cricket Ground B', status: 'Scheduled'},
-            {date: '2025-12-03', time: '10:00', sport: 'Football', competition: 'JPNV Football Championship', homeTeam: 'JPNV FC Lions', awayTeam: 'JPNV FC Tigers', venue: 'JPNV Football Stadium', status: 'Scheduled'},
-            {date: '2025-12-05', time: '09:00', sport: 'Basketball', competition: 'JPNV Basketball Pro League', homeTeam: 'JPNV Ballers', awayTeam: 'JPNV Shooters', venue: 'JPNV Basketball Arena', status: 'Scheduled'},
-            {date: '2025-12-06', time: '08:00', sport: 'Tennis', competition: 'JPNV Tennis Open', homeTeam: 'JPNV Aces', awayTeam: 'JPNV Serves', venue: 'JPNV Tennis Courts', status: 'Scheduled'},
-            {date: '2025-12-07', time: '09:00', sport: 'Volleyball', competition: 'JPNV Volleyball League', homeTeam: 'JPNV Spikers', awayTeam: 'JPNV Blockers', venue: 'JPNV Indoor Sports Complex', status: 'Scheduled'},
-            {date: '2025-12-08', time: '08:00', sport: 'Badminton', competition: 'JPNV Badminton Championship', homeTeam: 'JPNV Shuttlers', awayTeam: 'JPNV Smashers', venue: 'JPNV Badminton Hall', status: 'Scheduled'}
-        ];
+        // Dynamic data loaded from CSV files
+        let matches = [];
+        let teams = [];
+        let venues = [];
 
-        let teams = []; // Will be loaded from CSV
+        // Data update functions for CSV loader
+        window.updateMatchesData = function(csvMatches) {
+            matches = csvMatches || [];
+            console.log('Matches updated:', matches.length);
+            renderMatches();
+            updateStats();
+        };
 
-        let venues = []; // Will be loaded from CSV
+        window.updateTeamsData = function(csvTeams) {
+            teams = csvTeams || [];
+            console.log('Teams updated:', teams.length);
+            if (document.querySelector('#teams-section').style.display !== 'none') {
+                renderTeams();
+            }
+        };
+
+        window.updateVenuesData = function(csvVenues) {
+            venues = csvVenues || [];
+            console.log('Venues updated:', venues.length);
+            if (document.querySelector('#venues-section').style.display !== 'none') {
+                renderVenues();
+            }
+        };
+
+        // Update hero stats with actual data
+        function updateStats() {
+            const uniqueSports = new Set(matches.map(m => m.sport)).size;
+            document.querySelector('.hero-stats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${matches.length}</div>
+                    <div class="stat-label">Matches</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${teams.length}</div>
+                    <div class="stat-label">Teams</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${uniqueSports || 6}</div>
+                    <div class="stat-label">Sports</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${venues.length}</div>
+                    <div class="stat-label">Venues</div>
+                </div>
+            `;
+        }
 
         function formatDate(dateString) {
             return new Date(dateString).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -183,35 +220,38 @@
         }
 
         function renderTeams() {
-            const grid = document.getElementById('teams-grid');
-            if (teams.length === 0) {
-                grid.innerHTML = '<div class="loading">📊 Loading teams...</div>';
+            if (!teams || teams.length === 0) {
+                document.getElementById('teams-grid').innerHTML = '<div class="loading">Loading teams...</div>';
                 return;
             }
-            grid.innerHTML = teams.map(team => `
+            document.getElementById('teams-grid').innerHTML = teams.map(team => `
                 <div class="team-card">
                     <div class="team-card-logo">${getInitials(team.name)}</div>
                     <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;">${team.name}</div>
                     <div style="color: #6b7280; margin-bottom: 12px;">${getSportIcon(team.sport)} ${team.sport}</div>
-                    <div style="font-size: 14px;">👤 ${team.contact}</div>
-                    <div style="font-size: 14px;">📧 ${team.email}</div>
+                    <div style="font-size: 14px; margin-bottom: 4px;">🏆 ${team.division || 'Division'}</div>
+                    <div style="font-size: 14px; margin-bottom: 4px;">👤 ${team.contact || 'Contact'}</div>
+                    <div style="font-size: 14px; margin-bottom: 4px;">📧 ${team.email || ''}</div>
+                    <div style="font-size: 14px; margin-bottom: 4px;">🏟️ ${team.venue || 'Home Venue'}</div>
+                    ${team.color ? `<div style="font-size: 12px; color: #6b7280;">🎨 ${team.color}</div>` : ''}
                 </div>
             `).join('');
         }
 
         function renderVenues() {
-            const grid = document.getElementById('venues-grid');
-            if (venues.length === 0) {
-                grid.innerHTML = '<div class="loading">📊 Loading venues...</div>';
+            if (!venues || venues.length === 0) {
+                document.getElementById('venues-grid').innerHTML = '<div class="loading">Loading venues...</div>';
                 return;
             }
-            grid.innerHTML = venues.map(venue => `
+            document.getElementById('venues-grid').innerHTML = venues.map(venue => `
                 <div class="team-card">
                     <div class="team-card-logo">🏟️</div>
                     <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;">${venue.name}</div>
-                    <div style="color: #6b7280; margin-bottom: 12px;">${venue.city || venue.location || 'Pune'}</div>
-                    <div style="font-size: 14px;">👥 Capacity: ${(venue.capacity || 0).toLocaleString()}</div>
-                    <div style="font-size: 14px;">🌿 ${venue.surface || 'Multi-Purpose'}</div>
+                    <div style="color: #6b7280; margin-bottom: 12px;">${venue.city}${venue.state ? `, ${venue.state}` : ''}</div>
+                    <div style="font-size: 14px; margin-bottom: 4px;">👥 Capacity: ${venue.capacity ? venue.capacity.toLocaleString() : 'N/A'}</div>
+                    <div style="font-size: 14px; margin-bottom: 4px;">🌿 ${venue.surface || 'Surface'}</div>
+                    <div style="font-size: 14px; margin-bottom: 4px;">🏢 ${venue.type || 'Type'}</div>
+                    ${venue.contact ? `<div style="font-size: 14px;">📞 ${venue.contact}</div>` : ''}
                 </div>
             `).join('');
         }
@@ -228,21 +268,22 @@
                         this.style.transition = '';
                     }, 500);
                     
-                    // Reload CSV data and refresh current section
-                    if (window.jpnvLoader) {
-                        window.jpnvLoader.loadAllData().then(() => {
-                            const activeSection = document.querySelector('.nav-btn.active')?.dataset.section;
-                            if (activeSection === 'matches') renderMatches();
-                            else if (activeSection === 'teams') renderTeams();
-                            else if (activeSection === 'venues') renderVenues();
-                        });
-                    } else {
-                        // Fallback if loader not ready
-                        const activeSection = document.querySelector('.nav-btn.active')?.dataset.section;
-                        if (activeSection === 'matches') renderMatches();
-                        else if (activeSection === 'teams') renderTeams();
-                        else if (activeSection === 'venues') renderVenues();
+                    // Refresh current section and reload CSV data
+                    const activeSection = document.querySelector('.nav-btn.active')?.dataset.section;
+                    if (activeSection === 'matches') {
+                        document.getElementById('matches-grid').innerHTML = '<div class="loading">🔄 Refreshing matches...</div>';
+                    } else if (activeSection === 'teams') {
+                        document.getElementById('teams-grid').innerHTML = '<div class="loading">🔄 Refreshing teams...</div>';
+                    } else if (activeSection === 'venues') {
+                        document.getElementById('venues-grid').innerHTML = '<div class="loading">🔄 Refreshing venues...</div>';
                     }
+                    
+                    // Reload CSV data with cache busting
+                    const timestamp = new Date().getTime();
+                    const s = document.createElement('script');
+                    s.src = `js/mini-csv.js?v=${timestamp}`;
+                    s.async = true;
+                    document.head.appendChild(s);
                     return;
                 }
                 
@@ -307,7 +348,10 @@
             document.head.appendChild(s);
         }, 300);
 
-        // Initial render
+        // Initialize with loading states
+        document.getElementById('matches-grid').innerHTML = '<div class="loading">📊 Loading matches from CSV...</div>';
+        
+        // Initial render after CSV loads
         renderMatches();
     </script>
 </body>

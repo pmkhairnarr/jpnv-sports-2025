@@ -1,108 +1,78 @@
-// Enhanced CSV loader for all JPNV data
-class JPNVDataLoader {
-    constructor() {
-        this.baseURL = 'https://raw.githubusercontent.com/pmkhairnarr/jpnv-sports-2025/main/data/';
-    }
-
-    async loadCSV(filename) {
+// Enhanced CSV loader for all data types
+class MiniCSVLoader {
+    async loadCSV(url) {
         try {
-            const response = await fetch(this.baseURL + filename + '?t=' + Date.now());
-            if (!response.ok) return null;
-            const text = await response.text();
-            const lines = text.split('\n').filter(l => l.trim());
-            if (lines.length <= 1) return [];
+            const r = await fetch(url);
+            if (!r.ok) return null;
+            const t = await r.text();
+            const lines = t.split('\n').filter(l => l.trim());
+            if (lines.length < 2) return null;
             
             const headers = lines[0].split(',').map(h => h.trim());
             return lines.slice(1).map(line => {
                 const values = line.split(',');
                 const obj = {};
-                headers.forEach((header, index) => {
-                    obj[header.toLowerCase().replace(/\s+/g, '')] = values[index]?.trim() || '';
+                headers.forEach((header, i) => {
+                    obj[header] = values[i]?.trim() || '';
                 });
                 return obj;
             });
-        } catch(e) { 
-            console.error('Error loading CSV:', filename, e);
-            return null; 
-        }
+        } catch(e) { console.error('CSV load error:', e); return null; }
     }
 
-    async loadAllData() {
-        try {
-            const [matchesData, teamsData, venuesData] = await Promise.all([
-                this.loadCSV('JPNV-Match-Schedule.csv'),
-                this.loadCSV('JPNV-Teams-Information.csv'),
-                this.loadCSV('JPNV-Venues-List.csv')
-            ]);
+    async loadMatches() {
+        const data = await this.loadCSV('https://raw.githubusercontent.com/pmkhairnarr/jpnv-sports-2025/main/data/JPNV-Match-Schedule.csv');
+        return data?.map(row => ({
+            date: row['Date']?.trim(),
+            time: row['Time']?.trim(), 
+            sport: row['Sport']?.trim(),
+            competition: row['Competition']?.trim(),
+            homeTeam: row['Home Team']?.trim(),
+            awayTeam: row['Away Team']?.trim(),
+            venue: row['Venue']?.trim(),
+            status: row['Status']?.trim() || 'Scheduled'
+        }));
+    }
 
-            // Process matches
-            if (matchesData && window.matches) {
-                window.matches.length = 0;
-                matchesData.forEach(match => {
-                    window.matches.push({
-                        date: match.date || match.matchdate,
-                        time: match.time || match.matchtime,
-                        sport: match.sport,
-                        homeTeam: match.hometeam || match.team1,
-                        awayTeam: match.awayteam || match.team2,
-                        venue: match.venue,
-                        status: match.status || 'Scheduled',
-                        competition: match.competition || match.tournament || 'JPNV Sports 2025-26'
-                    });
-                });
-                if (window.renderMatches) window.renderMatches();
-            }
+    async loadTeams() {
+        const data = await this.loadCSV('https://raw.githubusercontent.com/pmkhairnarr/jpnv-sports-2025/main/data/JPNV-Teams-Information.csv');
+        return data?.map(row => ({
+            name: row['Team Name']?.trim(),
+            sport: row['Sport']?.trim(),
+            division: row['Division']?.trim(),
+            contact: row['Contact Person']?.trim(),
+            phone: row['Phone']?.trim(),
+            email: row['Email']?.trim(),
+            venue: row['Home Venue']?.trim(),
+            color: row['Team Color']?.trim()
+        }));
+    }
 
-            // Process teams
-            if (teamsData && window.teams) {
-                window.teams.length = 0;
-                teamsData.forEach(team => {
-                    window.teams.push({
-                        name: team.teamname || team.name,
-                        sport: team.sport,
-                        contact: team.contactperson || team.contact,
-                        email: team.email,
-                        phone: team.phone,
-                        venue: team.homevenue || team.venue,
-                        division: team.division
-                    });
-                });
-            }
-
-            // Process venues
-            if (venuesData && window.venues) {
-                window.venues.length = 0;
-                venuesData.forEach(venue => {
-                    window.venues.push({
-                        name: venue.venuename || venue.name,
-                        city: venue.city || venue.location,
-                        capacity: parseInt(venue.capacity) || 0,
-                        surface: venue.surface || venue.type
-                    });
-                });
-            }
-
-            console.log('✅ All JPNV data loaded successfully');
-            console.log(`📊 Matches: ${window.matches?.length || 0}, Teams: ${window.teams?.length || 0}, Venues: ${window.venues?.length || 0}`);
-            
-            // Refresh current view
-            const activeSection = document.querySelector('.nav-btn.active')?.dataset.section;
-            if (activeSection === 'teams' && window.renderTeams) window.renderTeams();
-            if (activeSection === 'venues' && window.renderVenues) window.renderVenues();
-            
-        } catch(error) {
-            console.error('Error loading JPNV data:', error);
-        }
+    async loadVenues() {
+        const data = await this.loadCSV('https://raw.githubusercontent.com/pmkhairnarr/jpnv-sports-2025/main/data/JPNV-Venues-List.csv');
+        return data?.map(row => ({
+            name: row['Venue Name']?.trim(),
+            city: row['City']?.trim(),
+            state: row['State']?.trim(),
+            capacity: parseInt(row['Capacity']) || 0,
+            surface: row['Surface Type']?.trim(),
+            type: row['Indoor/Outdoor']?.trim(),
+            contact: row['Contact Number']?.trim()
+        }));
     }
 }
 
-// Auto-load data when script loads
-const jpnvLoader = new JPNVDataLoader();
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => jpnvLoader.loadAllData());
-} else {
-    jpnvLoader.loadAllData();
-}
+// Load all data and update website
+const loader = new MiniCSVLoader();
 
-// Make loader available globally for refresh functionality
-window.jpnvLoader = jpnvLoader;
+Promise.all([
+    loader.loadMatches(),
+    loader.loadTeams(), 
+    loader.loadVenues()
+]).then(([matches, teams, venues]) => {
+    console.log('CSV Data Loaded:', { matches: matches?.length, teams: teams?.length, venues: venues?.length });
+    
+    if (matches && window.updateMatchesData) window.updateMatchesData(matches);
+    if (teams && window.updateTeamsData) window.updateTeamsData(teams);
+    if (venues && window.updateVenuesData) window.updateVenuesData(venues);
+});
