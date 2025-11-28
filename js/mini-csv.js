@@ -8,14 +8,23 @@ class MiniCSVLoader {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
             
-            const r = await fetch(url, { 
+            // Use appropriate mode based on URL
+            const isLocal = url.startsWith('./') || url.startsWith('/') || !url.includes('://');
+            const fetchOptions = {
                 cache: 'no-store',
                 signal: controller.signal,
                 headers: {
                     'Cache-Control': 'no-cache, no-store, must-revalidate',
                     'Pragma': 'no-cache'
                 }
-            });
+            };
+            
+            // Only set mode for external URLs to avoid CORS
+            if (!isLocal) {
+                fetchOptions.mode = 'cors';
+            }
+            
+            const r = await fetch(url, fetchOptions);
             
             clearTimeout(timeoutId);
             
@@ -47,8 +56,16 @@ class MiniCSVLoader {
     }
 
     async loadMatches() {
-        const baseUrl = 'https://raw.githubusercontent.com/pmkhairnarr/jpnv-sports-2025/main/data/JPNV-Match-Schedule.csv';
-        const data = await this.loadCSV(`${baseUrl}?t=${Date.now()}`);
+        // Try local file first, then GitHub as fallback
+        const localUrl = './data/JPNV-Match-Schedule.csv';
+        const githubUrl = 'https://raw.githubusercontent.com/pmkhairnarr/jpnv-sports-2025/main/data/JPNV-Match-Schedule.csv';
+        
+        let data = await this.loadCSV(`${localUrl}?v=${Date.now()}`);
+        if (!data) {
+            console.log('🔄 Trying GitHub fallback for matches...');
+            data = await this.loadCSV(`${githubUrl}?t=${Date.now()}`);
+        }
+        
         return data?.map(row => ({
             date: row['Date']?.trim(),
             time: row['Time']?.trim(), 
@@ -62,8 +79,16 @@ class MiniCSVLoader {
     }
 
     async loadTeams() {
-        const baseUrl = 'https://raw.githubusercontent.com/pmkhairnarr/jpnv-sports-2025/main/data/JPNV-Teams-Information.csv';
-        const data = await this.loadCSV(`${baseUrl}?t=${Date.now()}`);
+        // Try local file first, then GitHub as fallback
+        const localUrl = './data/JPNV-Teams-Information.csv';
+        const githubUrl = 'https://raw.githubusercontent.com/pmkhairnarr/jpnv-sports-2025/main/data/JPNV-Teams-Information.csv';
+        
+        let data = await this.loadCSV(`${localUrl}?v=${Date.now()}`);
+        if (!data) {
+            console.log('🔄 Trying GitHub fallback for teams...');
+            data = await this.loadCSV(`${githubUrl}?t=${Date.now()}`);
+        }
+        
         return data?.map(row => ({
             name: row['Team Name']?.trim(),
             sport: row['Sport']?.trim(),
@@ -77,8 +102,16 @@ class MiniCSVLoader {
     }
 
     async loadVenues() {
-        const baseUrl = 'https://raw.githubusercontent.com/pmkhairnarr/jpnv-sports-2025/main/data/JPNV-Venues-List.csv';
-        const data = await this.loadCSV(`${baseUrl}?t=${Date.now()}`);
+        // Try local file first, then GitHub as fallback
+        const localUrl = './data/JPNV-Venues-List.csv';
+        const githubUrl = 'https://raw.githubusercontent.com/pmkhairnarr/jpnv-sports-2025/main/data/JPNV-Venues-List.csv';
+        
+        let data = await this.loadCSV(`${localUrl}?v=${Date.now()}`);
+        if (!data) {
+            console.log('🔄 Trying GitHub fallback for venues...');
+            data = await this.loadCSV(`${githubUrl}?t=${Date.now()}`);
+        }
+        
         return data?.map(row => ({
             name: row['Venue Name']?.trim(),
             city: row['City']?.trim(),
@@ -104,9 +137,9 @@ Promise.allSettled([
 ]).then((results) => {
     const loadTime = (performance.now() - startTime).toFixed(2);
     
-    const matches = results[0].status === 'fulfilled' ? results[0].value : null;
-    const teams = results[1].status === 'fulfilled' ? results[1].value : null;
-    const venues = results[2].status === 'fulfilled' ? results[2].value : null;
+    const matches = results[0].status === 'fulfilled' ? results[0].value : [];
+    const teams = results[1].status === 'fulfilled' ? results[1].value : [];
+    const venues = results[2].status === 'fulfilled' ? results[2].value : [];
     
     console.log('⚡ FAST CSV Data Loaded in', loadTime + 'ms:', { 
         matches: matches?.length || 0, 
@@ -116,23 +149,29 @@ Promise.allSettled([
         errors: results.filter(r => r.status === 'rejected').length
     });
     
-    // Update immediately with available data - no delays
-    if (matches && window.updateMatchesData) {
+    // Update with available data (even if empty arrays)
+    if (window.updateMatchesData) {
         console.log('📊 Updating matches display...');
         window.updateMatchesData(matches);
     }
     
-    if (teams && window.updateTeamsData) {
+    if (window.updateTeamsData) {
         console.log('👥 Updating teams display...');
         window.updateTeamsData(teams);
     }
     
-    if (venues && window.updateVenuesData) {
+    if (window.updateVenuesData) {
         console.log('🏟️ Updating venues display...');
         window.updateVenuesData(venues);
     }
     
-    console.log('✅ All available data updated in', (performance.now() - startTime).toFixed(2) + 'ms');
+    console.log('✅ All data updated in', (performance.now() - startTime).toFixed(2) + 'ms');
+    
+    // Show specific error messages if no data loaded
+    const totalRecords = matches.length + teams.length + venues.length;
+    if (totalRecords === 0) {
+        console.warn('⚠️ No CSV data loaded - all files failed or are empty');
+    }
     
     // Log any failures
     results.forEach((result, index) => {
@@ -141,6 +180,12 @@ Promise.allSettled([
             console.warn(`⚠️ ${names[index]} loading failed:`, result.reason);
         }
     });
+}).catch(error => {
+    console.error('❌ Critical CSV loading error:', error);
+    // Still try to update displays with empty data to prevent hanging
+    if (window.updateMatchesData) window.updateMatchesData([]);
+    if (window.updateTeamsData) window.updateTeamsData([]);
+    if (window.updateVenuesData) window.updateVenuesData([]);
 });
 
 } // End of MiniCSVLoader class guard
