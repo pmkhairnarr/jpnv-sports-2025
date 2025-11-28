@@ -17,6 +17,8 @@
         .nav-menu{display:flex;gap:8px}
         .nav-btn{padding:8px 16px;background:none;border:2px solid #2563eb;border-radius:8px;color:#2563eb;font-weight:500;cursor:pointer;font-size:14px}
         .nav-btn:hover,.nav-btn.active{background:#2563eb;color:white}
+        .refresh-btn{padding:8px 12px!important;font-size:16px!important;transition:transform 0.3s ease}
+        .refresh-btn:hover{transform:rotate(90deg)}
         .hero-section{text-align:center;padding:40px 0;color:white;margin-bottom:32px}
         .hero-title{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;margin-bottom:16px}
         .hero-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:16px;max-width:600px;margin:0 auto}
@@ -39,6 +41,7 @@
                     <button class="nav-btn active" data-section="matches">Matches</button>
                     <button class="nav-btn" data-section="teams">Teams</button>
                     <button class="nav-btn" data-section="venues">Venues</button>
+                    <button class="nav-btn refresh-btn" title="Refresh Data">🔄</button>
                 </nav>
             </div>
         </div>
@@ -216,6 +219,23 @@
         // Navigation
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.onclick = function() {
+                // Handle refresh button separately
+                if (this.classList.contains('refresh-btn')) {
+                    this.style.transform = 'rotate(360deg)';
+                    this.style.transition = 'transform 0.5s ease';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                        this.style.transition = '';
+                    }, 500);
+                    
+                    // Refresh current section
+                    const activeSection = document.querySelector('.nav-btn.active')?.dataset.section;
+                    if (activeSection === 'matches') renderMatches();
+                    else if (activeSection === 'teams') renderTeams();
+                    else if (activeSection === 'venues') renderVenues();
+                    return;
+                }
+                
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 
