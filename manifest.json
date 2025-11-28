@@ -1,0 +1,96 @@
+{
+  "name": "JPNV Sports 2025-26",
+  "short_name": "JPNV Sports",
+  "description": "Complete mobile-optimized sports portal for Jayawantrao Pawar Nagar Vikas sports leagues including Cricket, Football, Basketball, and Tennis",
+  "start_url": "/jpnv-sports-2025/",
+  "scope": "/jpnv-sports-2025/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#2563eb",
+  "background_color": "#ffffff",
+  "lang": "en",
+  "categories": ["sports", "entertainment", "lifestyle"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%232563eb' rx='24'/><text x='96' y='120' font-size='80' text-anchor='middle' fill='white'>🏏</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%232563eb' rx='64'/><text x='256' y='320' font-size='200' text-anchor='middle' fill='white'>🏏</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 844'><rect width='390' height='844' fill='%23667eea'/><text x='195' y='100' font-size='24' text-anchor='middle' fill='white' font-family='Inter'>JPNV Sports 2025-26</text><rect x='20' y='150' width='350' height='100' fill='white' rx='8'/><text x='195' y='200' font-size='18' text-anchor='middle' fill='%232563eb'>Cricket Match Schedule</text></svg>",
+      "sizes": "390x844",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "JPNV Sports mobile app showing match schedule"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today's Matches",
+      "short_name": "Today",
+      "description": "View today's scheduled matches",
+      "url": "/?filter=today",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' fill='%2310b981' rx='12'/><text x='48' y='60' font-size='40' text-anchor='middle' fill='white'>📅</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Cricket Matches",
+      "short_name": "Cricket",
+      "description": "View cricket match schedule",
+      "url": "/?sport=Cricket",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' fill='%231e40af' rx='12'/><text x='48' y='60' font-size='40' text-anchor='middle' fill='white'>🏏</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Football Matches",
+      "short_name": "Football",
+      "description": "View football match schedule",
+      "url": "/?sport=Football",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' fill='%23166534' rx='12'/><text x='48' y='60' font-size='40' text-anchor='middle' fill='white'>⚽</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "All Teams",
+      "short_name": "Teams",
+      "description": "View all JPNV sports teams",
+      "url": "/?section=teams",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' fill='%23c2410c' rx='12'/><text x='48' y='60' font-size='40' text-anchor='middle' fill='white'>👥</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "features": [
+    "offline-support",
+    "push-notifications",
+    "background-sync"
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}
