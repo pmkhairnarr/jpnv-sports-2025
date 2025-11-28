@@ -31,8 +31,8 @@
         .stat-number{font-size:2rem;font-weight:700;color:#f59e0b}
         .loading{text-align:center;padding:40px;color:#fff}
     </style>
-    <link rel="preload" href="fast.css?v=1132" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="fast.css?v=1132"></noscript>
+    <link rel="preload" href="fast.css?v=1133" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="fast.css?v=1133"></noscript>
 </head>
 <body>
     <header class="header">
@@ -308,32 +308,32 @@
                         this.style.transition = '';
                     }, 200);
                     
-                    // Clear all data and reload from scratch
+                    console.log('🔥 HARD REFRESH initiated');
+                    
+                    // Clear all data immediately
                     matches = [];
                     teams = [];
                     venues = [];
                     
-                    // Reset all sections to loading
-                    document.getElementById('matches-grid').innerHTML = '<div class="loading">🔥 Hard refreshing - clearing cache...</div>';
-                    document.getElementById('teams-grid').innerHTML = '<div class="loading">🔥 Loading teams from scratch...</div>';
-                    document.getElementById('venues-grid').innerHTML = '<div class="loading">🔥 Loading venues from scratch...</div>';
+                    // Show fast loading indicators
+                    document.getElementById('matches-grid').innerHTML = '<div class="loading">⚡ Loading matches...</div>';
+                    document.getElementById('teams-grid').innerHTML = '<div class="loading">⚡ Loading teams...</div>';
+                    document.getElementById('venues-grid').innerHTML = '<div class="loading">⚡ Loading venues...</div>';
                     
-                    // Reset stats
+                    // Reset stats with loading indicators
                     document.querySelector('.hero-stats').innerHTML = `
-                        <div class="stat-card"><div class="stat-number">🔥</div><div class="stat-label">Matches</div></div>
-                        <div class="stat-card"><div class="stat-number">🔥</div><div class="stat-label">Teams</div></div>
-                        <div class="stat-card"><div class="stat-number">🔥</div><div class="stat-label">Sports</div></div>
-                        <div class="stat-card"><div class="stat-number">🔥</div><div class="stat-label">Venues</div></div>
+                        <div class="stat-card"><div class="stat-number">⚡</div><div class="stat-label">Matches</div></div>
+                        <div class="stat-card"><div class="stat-number">⚡</div><div class="stat-label">Teams</div></div>
+                        <div class="stat-card"><div class="stat-number">⚡</div><div class="stat-label">Sports</div></div>
+                        <div class="stat-card"><div class="stat-number">⚡</div><div class="stat-label">Venues</div></div>
                     `;
                     
-                    // Force reload with no cache
-                    setTimeout(() => {
-                        const timestamp = new Date().getTime();
-                        const s = document.createElement('script');
-                        s.src = `js/mini-csv.js?nocache=${timestamp}&hard=true`;
-                        s.async = true;
-                        document.head.appendChild(s);
-                    }, 500);
+                    // Immediate reload - no delay
+                    const timestamp = new Date().getTime();
+                    const s = document.createElement('script');
+                    s.src = `js/mini-csv.js?nocache=${timestamp}&hard=true`;
+                    s.async = true;
+                    document.head.appendChild(s);
                     return;
                 }
                 
@@ -393,7 +393,7 @@
         // Load mini CSV in background  
         setTimeout(() => {
             const s = document.createElement('script');
-            s.src = 'js/mini-csv.js?v=1132';
+            s.src = 'js/mini-csv.js?v=1133';
             s.async = true;
             document.head.appendChild(s);
         }, 300);
