@@ -290,7 +290,10 @@
                         document.getElementById('venues-grid').innerHTML = '<div class="loading">🔄 Refreshing venues...</div>';
                     }
                     
-                    // Reload CSV data with cache busting
+                    // Reload CSV data with cache busting - prevent duplicates
+                    const existingScripts = document.querySelectorAll('script[src*="mini-csv.js"]');
+                    existingScripts.forEach(script => script.remove());
+                    
                     const timestamp = new Date().getTime();
                     const s = document.createElement('script');
                     s.src = `js/mini-csv.js?v=${timestamp}`;
@@ -328,7 +331,10 @@
                         <div class="stat-card"><div class="stat-number">⚡</div><div class="stat-label">Venues</div></div>
                     `;
                     
-                    // Immediate reload - no delay
+                    // Immediate reload - no delay, prevent duplicates
+                    const existingScripts = document.querySelectorAll('script[src*="mini-csv.js"]');
+                    existingScripts.forEach(script => script.remove());
+                    
                     const timestamp = new Date().getTime();
                     const s = document.createElement('script');
                     s.src = `js/mini-csv.js?nocache=${timestamp}&hard=true`;
