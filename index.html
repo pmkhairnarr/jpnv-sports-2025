@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>🏏 JPNV Sports 2025-26</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏏</text></svg>">
     
@@ -26,8 +29,8 @@
         .stat-number{font-size:2rem;font-weight:700;color:#f59e0b}
         .loading{text-align:center;padding:40px;color:#fff}
     </style>
-    <link rel="preload" href="fast.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="fast.css"></noscript>
+    <link rel="preload" href="fast.css?v=1128" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="fast.css?v=1128"></noscript>
 </head>
 <body>
     <header class="header">
@@ -292,7 +295,7 @@
         // Load mini CSV in background  
         setTimeout(() => {
             const s = document.createElement('script');
-            s.src = 'js/mini-csv.js';
+            s.src = 'js/mini-csv.js?v=1128';
             s.async = true;
             document.head.appendChild(s);
         }, 300);
