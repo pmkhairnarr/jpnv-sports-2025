@@ -30,8 +30,8 @@
         .stat-number{font-size:2rem;font-weight:700;color:#f59e0b}
         .loading{text-align:center;padding:40px;color:#fff}
     </style>
-    <link rel="preload" href="fast.css?v=1129" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="fast.css?v=1129"></noscript>
+    <link rel="preload" href="fast.css?v=1130" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="fast.css?v=1130"></noscript>
 </head>
 <body>
     <header class="header">
@@ -129,23 +129,9 @@
             {date: '2025-12-08', time: '08:00', sport: 'Badminton', competition: 'JPNV Badminton Championship', homeTeam: 'JPNV Shuttlers', awayTeam: 'JPNV Smashers', venue: 'JPNV Badminton Hall', status: 'Scheduled'}
         ];
 
-        const teams = [
-            {name: 'Mumbai Warriors', sport: 'Cricket', contact: 'Rajesh Sharma', email: 'rajesh@jpnv.org'},
-            {name: 'JPNV FC Lions', sport: 'Football', contact: 'Amit Kumar', email: 'amit@jpnv.org'},
-            {name: 'JPNV Ballers', sport: 'Basketball', contact: 'Sanjay Mehta', email: 'sanjay@jpnv.org'},
-            {name: 'JPNV Aces', sport: 'Tennis', contact: 'Kiran Desai', email: 'kiran@jpnv.org'},
-            {name: 'JPNV Spikers', sport: 'Volleyball', contact: 'Sunil Pandey', email: 'sunil@jpnv.org'},
-            {name: 'JPNV Shuttlers', sport: 'Badminton', contact: 'Arjun Negi', email: 'arjun@jpnv.org'}
-        ];
+        let teams = []; // Will be loaded from CSV
 
-        const venues = [
-            {name: 'JPNV Cricket Ground A', city: 'Pune', capacity: 15000, surface: 'Natural Grass'},
-            {name: 'JPNV Football Stadium', city: 'Pune', capacity: 25000, surface: 'Natural Grass'},
-            {name: 'JPNV Basketball Arena', city: 'Pune', capacity: 5000, surface: 'Hardwood'},
-            {name: 'JPNV Tennis Courts', city: 'Pune', capacity: 2000, surface: 'Hard Court'},
-            {name: 'JPNV Indoor Sports Complex', city: 'Pune', capacity: 3000, surface: 'Synthetic'},
-            {name: 'JPNV Badminton Hall', city: 'Pune', capacity: 1500, surface: 'Wooden'}
-        ];
+        let venues = []; // Will be loaded from CSV
 
         function formatDate(dateString) {
             return new Date(dateString).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -197,7 +183,12 @@
         }
 
         function renderTeams() {
-            document.getElementById('teams-grid').innerHTML = teams.map(team => `
+            const grid = document.getElementById('teams-grid');
+            if (teams.length === 0) {
+                grid.innerHTML = '<div class="loading">📊 Loading teams...</div>';
+                return;
+            }
+            grid.innerHTML = teams.map(team => `
                 <div class="team-card">
                     <div class="team-card-logo">${getInitials(team.name)}</div>
                     <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;">${team.name}</div>
@@ -209,13 +200,18 @@
         }
 
         function renderVenues() {
-            document.getElementById('venues-grid').innerHTML = venues.map(venue => `
+            const grid = document.getElementById('venues-grid');
+            if (venues.length === 0) {
+                grid.innerHTML = '<div class="loading">📊 Loading venues...</div>';
+                return;
+            }
+            grid.innerHTML = venues.map(venue => `
                 <div class="team-card">
                     <div class="team-card-logo">🏟️</div>
                     <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;">${venue.name}</div>
-                    <div style="color: #6b7280; margin-bottom: 12px;">${venue.city}</div>
-                    <div style="font-size: 14px;">👥 Capacity: ${venue.capacity.toLocaleString()}</div>
-                    <div style="font-size: 14px;">🌿 ${venue.surface}</div>
+                    <div style="color: #6b7280; margin-bottom: 12px;">${venue.city || venue.location || 'Pune'}</div>
+                    <div style="font-size: 14px;">👥 Capacity: ${(venue.capacity || 0).toLocaleString()}</div>
+                    <div style="font-size: 14px;">🌿 ${venue.surface || 'Multi-Purpose'}</div>
                 </div>
             `).join('');
         }
@@ -232,11 +228,21 @@
                         this.style.transition = '';
                     }, 500);
                     
-                    // Refresh current section
-                    const activeSection = document.querySelector('.nav-btn.active')?.dataset.section;
-                    if (activeSection === 'matches') renderMatches();
-                    else if (activeSection === 'teams') renderTeams();
-                    else if (activeSection === 'venues') renderVenues();
+                    // Reload CSV data and refresh current section
+                    if (window.jpnvLoader) {
+                        window.jpnvLoader.loadAllData().then(() => {
+                            const activeSection = document.querySelector('.nav-btn.active')?.dataset.section;
+                            if (activeSection === 'matches') renderMatches();
+                            else if (activeSection === 'teams') renderTeams();
+                            else if (activeSection === 'venues') renderVenues();
+                        });
+                    } else {
+                        // Fallback if loader not ready
+                        const activeSection = document.querySelector('.nav-btn.active')?.dataset.section;
+                        if (activeSection === 'matches') renderMatches();
+                        else if (activeSection === 'teams') renderTeams();
+                        else if (activeSection === 'venues') renderVenues();
+                    }
                     return;
                 }
                 
@@ -296,7 +302,7 @@
         // Load mini CSV in background  
         setTimeout(() => {
             const s = document.createElement('script');
-            s.src = 'js/mini-csv.js?v=1129';
+            s.src = 'js/mini-csv.js?v=1130';
             s.async = true;
             document.head.appendChild(s);
         }, 300);
