@@ -65,14 +65,42 @@ class MiniCSVLoader {
 // Load all data and update website
 const loader = new MiniCSVLoader();
 
+console.log('🔄 Starting CSV data load...');
+
 Promise.all([
     loader.loadMatches(),
     loader.loadTeams(), 
     loader.loadVenues()
 ]).then(([matches, teams, venues]) => {
-    console.log('CSV Data Loaded:', { matches: matches?.length, teams: teams?.length, venues: venues?.length });
+    console.log('✅ CSV Data Loaded:', { 
+        matches: matches?.length || 0, 
+        teams: teams?.length || 0, 
+        venues: venues?.length || 0,
+        timestamp: new Date().toLocaleTimeString()
+    });
     
-    if (matches && window.updateMatchesData) window.updateMatchesData(matches);
-    if (teams && window.updateTeamsData) window.updateTeamsData(teams);
-    if (venues && window.updateVenuesData) window.updateVenuesData(venues);
+    // Update with small delays to show loading progress
+    setTimeout(() => {
+        if (matches && window.updateMatchesData) {
+            console.log('📊 Updating matches display...');
+            window.updateMatchesData(matches);
+        }
+    }, 100);
+    
+    setTimeout(() => {
+        if (teams && window.updateTeamsData) {
+            console.log('👥 Updating teams display...');
+            window.updateTeamsData(teams);
+        }
+    }, 200);
+    
+    setTimeout(() => {
+        if (venues && window.updateVenuesData) {
+            console.log('🏟️ Updating venues display...');
+            window.updateVenuesData(venues);
+        }
+    }, 300);
+    
+}).catch(error => {
+    console.error('❌ CSV Loading Error:', error);
 });

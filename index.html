@@ -20,10 +20,9 @@
         .nav-menu{display:flex;gap:8px}
         .nav-btn{padding:8px 16px;background:none;border:2px solid #2563eb;border-radius:8px;color:#2563eb;font-weight:500;cursor:pointer;font-size:14px}
         .nav-btn:hover,.nav-btn.active{background:#2563eb;color:white}
-        .refresh-btn{padding:8px 12px!important;font-size:16px!important;transition:transform 0.3s ease}
+        .refresh-btn,.hard-refresh-btn{padding:8px 12px!important;font-size:16px!important;transition:transform 0.3s ease}
         .refresh-btn:hover{transform:rotate(90deg)}
-        .hard-refresh-btn{padding:8px 12px!important;font-size:16px!important;transition:all 0.3s ease;background:linear-gradient(45deg,#ef4444,#f97316)!important;color:white!important;border-color:#dc2626!important}
-        .hard-refresh-btn:hover{transform:scale(1.1);box-shadow:0 4px 12px rgba(239,68,68,0.4)}
+        .hard-refresh-btn:hover{transform:scale(1.1);background:#dc2626!important;border-color:#dc2626!important}
         @media (max-width:768px){.header-content{flex-wrap:wrap;gap:8px}.logo{flex:1;min-width:0}.nav-menu{gap:4px;flex-wrap:wrap;width:100%;justify-content:space-between}.nav-btn{padding:8px 10px;font-size:12px;min-width:60px;min-height:44px;touch-action:manipulation}.refresh-btn,.hard-refresh-btn{padding:8px 10px!important;font-size:14px!important;min-width:45px!important}}
         .hero-section{text-align:center;padding:40px 0;color:white;margin-bottom:32px}
         .hero-title{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;margin-bottom:16px}
@@ -48,7 +47,7 @@
                     <button class="nav-btn" data-section="teams">Teams</button>
                     <button class="nav-btn" data-section="venues">Venues</button>
                     <button class="nav-btn refresh-btn" title="Refresh Data">🔄</button>
-                    <button class="nav-btn hard-refresh-btn" title="Hard Refresh (No Cache)">🔥</button>
+                    <button class="nav-btn hard-refresh-btn" title="Hard Refresh - Clear Cache">🔥</button>
                 </nav>
             </div>
         </div>
@@ -130,6 +129,7 @@
         window.updateMatchesData = function(csvMatches) {
             matches = csvMatches || [];
             console.log('Matches updated:', matches.length);
+            if (window.clearLoadingAnimation) window.clearLoadingAnimation();
             renderMatches();
             updateStats();
         };
@@ -204,13 +204,7 @@
 
         function renderMatches(matchList = matches) {
             const grid = document.getElementById('matches-grid');
-            if (matchList.length === 0) {
-                grid.innerHTML = matches.length === 0 ? 
-                    '<div class="loading">📡 Loading matches from GitHub CSV...<br><small>Please wait while we fetch the latest data</small></div>' : 
-                    '<div class="loading">No matches found for selected filter.</div>';
-                return;
-            }
-            grid.innerHTML = matchList.map(match => `
+            grid.innerHTML = matchList.length === 0 ? '<div class="loading">No matches found.</div>' : matchList.map(match => `
                 <div class="match-card">
                     <div class="match-header">
                         <span style="font-weight: 600;">${formatDate(match.date)}</span>
@@ -277,46 +271,7 @@
         // Navigation
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.onclick = function() {
-                // Handle hard refresh button
-                if (this.classList.contains('hard-refresh-btn')) {
-                    this.style.transform = 'scale(0.9)';
-                    this.style.transition = 'transform 0.2s ease';
-                    setTimeout(() => {
-                        this.style.transform = '';
-                    }, 200);
-                    
-                    // Clear all data and reset to loading states
-                    matches = [];
-                    teams = [];
-                    venues = [];
-                    
-                    // Reset all sections to loading
-                    document.getElementById('matches-grid').innerHTML = '<div class="loading">🔥 Hard refreshing matches...</div>';
-                    document.getElementById('teams-grid').innerHTML = '<div class="loading">🔥 Hard refreshing teams...</div>';
-                    document.getElementById('venues-grid').innerHTML = '<div class="loading">🔥 Hard refreshing venues...</div>';
-                    
-                    // Reset hero stats to loading
-                    document.querySelector('.hero-stats').innerHTML = `
-                        <div class="stat-card"><div class="stat-number">⏳</div><div class="stat-label">Matches</div></div>
-                        <div class="stat-card"><div class="stat-number">⏳</div><div class="stat-label">Teams</div></div>
-                        <div class="stat-card"><div class="stat-number">⏳</div><div class="stat-label">Sports</div></div>
-                        <div class="stat-card"><div class="stat-number">⏳</div><div class="stat-label">Venues</div></div>
-                    `;
-                    
-                    // Force hard refresh with timestamp and cache busting headers
-                    const timestamp = new Date().getTime();
-                    const s = document.createElement('script');
-                    s.src = `js/mini-csv.js?nocache=${timestamp}&t=${timestamp}`;
-                    s.async = true;
-                    // Remove any existing CSV loader scripts
-                    document.querySelectorAll('script[src*="mini-csv"]').forEach(el => el.remove());
-                    document.head.appendChild(s);
-                    
-                    console.log('🔥 Hard refresh initiated - bypassing all cache');
-                    return;
-                }
-                
-                // Handle regular refresh button
+                // Handle refresh button separately
                 if (this.classList.contains('refresh-btn')) {
                     this.style.transform = 'rotate(360deg)';
                     this.style.transition = 'transform 0.5s ease';
@@ -344,17 +299,50 @@
                     return;
                 }
                 
+                // Handle hard refresh button
+                if (this.classList.contains('hard-refresh-btn')) {
+                    this.style.transform = 'scale(0.9)';
+                    this.style.transition = 'transform 0.2s ease';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                        this.style.transition = '';
+                    }, 200);
+                    
+                    // Clear all data and reload from scratch
+                    matches = [];
+                    teams = [];
+                    venues = [];
+                    
+                    // Reset all sections to loading
+                    document.getElementById('matches-grid').innerHTML = '<div class="loading">🔥 Hard refreshing - clearing cache...</div>';
+                    document.getElementById('teams-grid').innerHTML = '<div class="loading">🔥 Loading teams from scratch...</div>';
+                    document.getElementById('venues-grid').innerHTML = '<div class="loading">🔥 Loading venues from scratch...</div>';
+                    
+                    // Reset stats
+                    document.querySelector('.hero-stats').innerHTML = `
+                        <div class="stat-card"><div class="stat-number">🔥</div><div class="stat-label">Matches</div></div>
+                        <div class="stat-card"><div class="stat-number">🔥</div><div class="stat-label">Teams</div></div>
+                        <div class="stat-card"><div class="stat-number">🔥</div><div class="stat-label">Sports</div></div>
+                        <div class="stat-card"><div class="stat-number">🔥</div><div class="stat-label">Venues</div></div>
+                    `;
+                    
+                    // Force reload with no cache
+                    setTimeout(() => {
+                        const timestamp = new Date().getTime();
+                        const s = document.createElement('script');
+                        s.src = `js/mini-csv.js?nocache=${timestamp}&hard=true`;
+                        s.async = true;
+                        document.head.appendChild(s);
+                    }, 500);
+                    return;
+                }
+                
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 
                 document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
                 document.getElementById(this.dataset.section + '-section').style.display = 'block';
                 
-                if (this.dataset.section === 'matches') {
-                    if (matches.length === 0) {
-                        document.getElementById('matches-grid').innerHTML = '<div class="loading">📊 Loading matches from CSV...</div>';
-                    }
-                }
                 if (this.dataset.section === 'teams') renderTeams();
                 if (this.dataset.section === 'venues') renderVenues();
             };
@@ -410,12 +398,19 @@
             document.head.appendChild(s);
         }, 300);
 
-        // Initialize with detailed loading states
-        document.getElementById('matches-grid').innerHTML = '<div class="loading">📊 Loading 20+ matches from GitHub CSV...</div>';
+        // Initialize with loading states and progress indicator
+        let loadingDots = 0;
+        const loadingInterval = setInterval(() => {
+            loadingDots = (loadingDots + 1) % 4;
+            const dots = '.'.repeat(loadingDots);
+            const spaces = '\u00A0'.repeat(3 - loadingDots);
+            document.getElementById('matches-grid').innerHTML = `<div class="loading">📊 Loading matches from CSV${dots}${spaces}</div>`;
+        }, 500);
         
-        // Show loading feedback in console
-        console.log('🚀 JPNV Sports initializing...');
-        console.log('📡 Loading CSV data from GitHub...');
+        // Clear loading animation when data loads
+        window.clearLoadingAnimation = function() {
+            clearInterval(loadingInterval);
+        };
         
         // Initial render after CSV loads
         renderMatches();
