@@ -817,8 +817,11 @@
         </div>
     </main>
 
+    <!-- CSV Dynamic Loader -->
+    <script src="js/csv-loader.js"></script>
+    
     <script>
-        // JPNV Sports Data - Expanded 6-Sport Championship
+        // JPNV Sports Data - Expanded 6-Sport Championship (Fallback Data)
         const jpnvData = {
             matches: [
                 // CRICKET MATCHES
@@ -1079,24 +1082,73 @@
             `).join('');
         }
 
+        // 🔄 Get current data source (CSV or fallback)
+        function getCurrentData() {
+            // Try to get CSV data first, fallback to static data
+            if (window.getJPNVData && typeof window.getJPNVData === 'function') {
+                const csvData = window.getJPNVData();
+                if (csvData.matches && csvData.matches.length > 0) {
+                    return csvData;
+                }
+            }
+            return jpnvData; // Fallback to static data
+        }
+
+        // 📊 Enhanced render functions that work with both CSV and static data
+        function renderMatchesEnhanced(matches = null) {
+            const currentData = getCurrentData();
+            const matchesToRender = matches || currentData.matches;
+            renderMatches(matchesToRender);
+        }
+
+        function renderTeamsEnhanced() {
+            const currentData = getCurrentData();
+            renderTeams(currentData.teams);
+        }
+
+        function renderVenuesEnhanced() {
+            const currentData = getCurrentData();
+            renderVenues(currentData.venues);
+        }
+
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
+            // Add loading indicators to grids
+            ['matches-grid', 'teams-grid', 'venues-grid'].forEach(gridId => {
+                const grid = document.getElementById(gridId);
+                if (grid) {
+                    const indicator = document.createElement('div');
+                    indicator.className = 'loading-indicator';
+                    indicator.innerHTML = '<div class="loading">📊 Loading data...</div>';
+                    grid.parentElement.style.position = 'relative';
+                    grid.parentElement.appendChild(indicator);
+                }
+            });
+
             // Navigation
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const section = this.dataset.section;
                     
+                    // Skip refresh button
+                    if (this.innerHTML.includes('🔄')) return;
+                    
                     // Update active nav button
-                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.nav-btn').forEach(b => {
+                        if (!b.innerHTML.includes('🔄')) {
+                            b.classList.remove('active');
+                        }
+                    });
                     this.classList.add('active');
                     
                     // Show/hide sections
                     document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
                     document.getElementById(`${section}-section`).style.display = 'block';
                     
-                    // Render content
-                    if (section === 'teams') renderTeams();
-                    if (section === 'venues') renderVenues();
+                    // Render content with enhanced functions
+                    if (section === 'teams') renderTeamsEnhanced();
+                    if (section === 'venues') renderVenuesEnhanced();
+                    if (section === 'matches') renderMatchesEnhanced();
                 });
             });
             
@@ -1109,17 +1161,20 @@
                     document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
                     this.classList.add('active');
                     
-                    // Filter matches
+                    // Filter matches using current data source
+                    const currentData = getCurrentData();
                     const filteredMatches = sport === 'all' 
-                        ? jpnvData.matches 
-                        : jpnvData.matches.filter(match => match.sport === sport);
+                        ? currentData.matches 
+                        : currentData.matches.filter(match => match.sport === sport);
                     
                     renderMatches(filteredMatches);
                 });
             });
             
-            // Initial render
-            renderMatches();
+            // Initial render with delay to allow CSV loader to initialize
+            setTimeout(() => {
+                renderMatchesEnhanced();
+            }, 100);
         });
 
         // PWA Features
