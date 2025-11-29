@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matches</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <script src="auth/auth-config.js"></script>
+</head>
+<body>
+    <!-- Authentication Protection -->
+    <div id="auth-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999;">
+        <div id="auth-login" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 8px; max-width: 400px; width: 90%;">
+            <h3 id="auth-title">🔒 Private Access</h3>
+            <p id="auth-message">Enter password to access this content</p>
+            <input type="password" id="auth-password" placeholder="Password" style="width: 100%; padding: 0.75rem; margin: 1rem 0; border: 1px solid #ddd; border-radius: 4px;">
+            <button id="auth-submit" style="width: 100%; padding: 0.75rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Access Website</button>
+            <div id="auth-error" style="color: red; margin-top: 1rem; display: none;"></div>
+        </div>
+    </div>
+
+    <header>
+        <div class="container">
+            <h1>Matches</h1>
+            <p><a href="index.html">← Back to Home</a></p>
+            <p><button id="auth-logout" style="float: right; padding: 0.25rem 0.5rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Logout</button></p>
+        </div>
+    </header>
+    
+    <div class="container" id="main-content">
+        <div style="margin-bottom: 1rem;">
+            <input type="text" id="search" placeholder="Search data..." style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+        </div>
+        
+        <table class="data-table" id="dataTable">
+            <thead>
+                <tr>
+                    <th>Matches</th>
+                    <th>Days</th>
+                    <th>Dates</th>
+                    <th>Venue</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>TT</td>
+                    <td>Monday</td>
+                    <td>Fri Dec 05 2025 05:30:00 GMT+0530 (India Standard Time)</td>
+                    <td>JPNV</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>PT</td>
+                    <td>Tuesday</td>
+                    <td>Sat Dec 06 2025 05:30:00 GMT+0530 (India Standard Time)</td>
+                    <td>JPNV</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>KT</td>
+                    <td>Wednesday</td>
+                    <td>Sun Dec 07 2025 05:30:00 GMT+0530 (India Standard Time)</td>
+                    <td>JPNV</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>UT</td>
+                    <td>Thursday</td>
+                    <td>Mon Dec 08 2025 05:30:00 GMT+0530 (India Standard Time)</td>
+                    <td>JPNV</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <p style="margin-top: 1rem; color: #666;">
+            Showing 4 records
+        </p>
+    </div>
+    
+    <script src="assets/script.js"></script>
+    <script>searchTable('search', 'dataTable');</script>
+    <script src="auth/website-auth.js"></script>
+    <script>
+        // Initialize authentication
+        if (typeof authConfig !== 'undefined') {
+            const auth = new WebsiteAuth(authConfig);
+        }
+    </script>
+</body>
+</html>
